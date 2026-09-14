@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String    @id @default(cuid())
+  email              String    @unique
+  passwordHash       String
+  name               String
+  bio                String?
+  currentlyWatchingId String?
+  favoriteShowId     String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  currentlyWatching  Show?     @relation("CurrentlyWatching", fields: [currentlyWatchingId], references: [id], onDelete: SetNull)
+  favoriteShow       Show?     @relation("FavoriteShow", fields: [favoriteShowId], references: [id], onDelete: SetNull)
+
+  watchActivities    UserShow[]
+  awards             UserAward[]
+  friendshipsSent    Friendship[] @relation("FriendshipsSent")
+  friendshipsReceived Friendship[] @relation("FriendshipsReceived")
+}
+
+model Show {
+  id           String   @id @default(cuid())
+  externalId   String?
+  title        String
+  year         Int?
+  posterUrl    String?
+  overview     String?
+  mediaType    String   @default("tv") // movie | tv
+  genre        String?
+  totalSeasons Int?
+  createdAt    DateTime @default(now())
+
+  currentlyWatchingBy User[] @relation("CurrentlyWatching")
+  favoritedBy         User[] @relation("FavoriteShow")
+  userShows           UserShow[]
+}
+
+model Friendship {
+  id        String   @id @default(cuid())
+  userId    String
+  friendId  String
+  status    String   @default("pending") // pending | accepted
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User @relation("FriendshipsSent", fields: [userId], references: [id], onDelete: Cascade)
+  friend User @relation("FriendshipsReceived", fields: [friendId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, friendId])
+  @@index([friendId])
+  @@index([userId])
+}
+
+model UserShow {
+  id         String    @id @default(cuid())
+  userId     String
+  showId     String
+  status     String    @default("watching") // watching | finished | dropped | want
+  progress   String?
+  finishedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  show Show @relation(fields: [showId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, showId])
+  @@index([userId])
+  @@index([showId])
+  @@index([status])
+}
+
+model Award {
+  id          String @id @default(cuid())
+  slug        String @unique
+  name        String
+  description String
+  icon        String @default("🏆")
+  threshold   Int    @default(1) // finished-series count needed
+
+  userAwards UserAward[]
+}
+
+model UserAward {
+  id       String   @id @default(cuid())
+  userId   String
+  awardId  String
+  earnedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  award Award @relation(fields: [awardId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, awardId])
+  @@index([userId])
+}
