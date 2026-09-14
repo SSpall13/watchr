@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0a0612;
+  --card: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.1);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  color: #f5f3ff;
+  background:
+    radial-gradient(1100px 560px at 8% -8%, rgba(139, 92, 246, 0.28), transparent 55%),
+    radial-gradient(900px 480px at 92% 0%, rgba(236, 72, 153, 0.14), transparent 50%),
+    radial-gradient(800px 480px at 50% 110%, rgba(99, 102, 241, 0.12), transparent 55%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+@layer components {
+  .glass {
+    @apply rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-glow;
+  }
+  .btn-primary {
+    @apply inline-flex min-h-11 items-center justify-center rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-500/30 transition hover:bg-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-300 focus:ring-offset-2 focus:ring-offset-brand-950 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-secondary {
+    @apply inline-flex min-h-11 items-center justify-center rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-danger {
+    @apply inline-flex min-h-11 items-center justify-center rounded-xl border border-rose-400/30 bg-rose-500/15 px-5 py-2.5 text-sm font-semibold text-rose-100 transition hover:bg-rose-500/25 focus:outline-none focus:ring-2 focus:ring-rose-300/40 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .input-field {
+    @apply w-full min-h-11 rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-sm text-white placeholder:text-violet-200/40 outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-500/40;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold tracking-wide;
+  }
+}
