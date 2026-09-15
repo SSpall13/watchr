@@ -22,7 +22,7 @@ export default async function UserProfilePage({
     include: {
       currentlyWatching: true,
       favoriteShow: true,
-      awards: { include: { award: true }, orderBy: { earnedAt: "desc" } },
+      awards: { include: { awardDefinition: true }, orderBy: { earnedAt: "desc" } },
       watchActivities: {
         where: { status: "finished" },
         include: { show: true },
@@ -91,9 +91,9 @@ export default async function UserProfilePage({
                 <span
                   key={ua.id}
                   className="badge border-brand-400/30 bg-brand-500/15 text-brand-100"
-                  title={ua.award.description}
+                  title={ua.awardDefinition.description}
                 >
-                  {ua.award.icon} {ua.award.name}
+                  {ua.awardDefinition.icon} {ua.awardDefinition.name}
                 </span>
               ))}
             </div>
