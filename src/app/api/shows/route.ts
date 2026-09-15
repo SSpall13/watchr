@@ -10,17 +10,23 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") || "").trim();
+  const service = (searchParams.get("service") || "").trim();
 
   const shows = await prisma.show.findMany({
-    where: q
-      ? {
-          OR: [
-            { title: { contains: q } },
-            { genre: { contains: q } },
-            { overview: { contains: q } },
-          ],
-        }
-      : undefined,
+    where: {
+      AND: [
+        q
+          ? {
+              OR: [
+                { title: { contains: q } },
+                { genre: { contains: q } },
+                { overview: { contains: q } },
+              ],
+            }
+          : {},
+        service ? { streamingService: service } : {},
+      ],
+    },
     orderBy: { title: "asc" },
     take: 40,
   });
