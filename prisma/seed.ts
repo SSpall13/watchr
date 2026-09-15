@@ -1,237 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { SHOWS } from "./seed-shows";
+import { COUNT_AWARDS, SHOW_AWARDS } from "./seed-awards";
 
 const prisma = new PrismaClient();
-
-// Poster URLs resolved from TVMaze (TV) and OMDb/Amazon (movies; iTunes unavailable from seed host).
-// Hardcoded so `npm run seed` works offline after this resolve.
-const SHOWS = [
-  {
-    title: "Breaking Bad",
-    year: 2008,
-    mediaType: "tv",
-    genre: "Drama",
-    totalSeasons: 5,
-    overview: "A chemistry teacher turned methamphetamine manufacturer.",
-    posterUrl:
-      "https://static.tvmaze.com/uploads/images/original_untouched/501/1253519.jpg",
-    externalId: "tmdb-1396",
-  },
-  {
-    title: "Stranger Things",
-    year: 2016,
-    mediaType: "tv",
-    genre: "Sci-Fi",
-    totalSeasons: 4,
-    overview: "Kids in Hawkins face supernatural forces.",
-    posterUrl:
-      "https://static.tvmaze.com/uploads/images/original_untouched/595/1489169.jpg",
-    externalId: "tmdb-66732",
-  },
-  {
-    title: "The Office",
-    year: 2005,
-    mediaType: "tv",
-    genre: "Comedy",
-    totalSeasons: 9,
-    overview: "A mockumentary on office life at Dunder Mifflin.",
-    posterUrl:
-      "https://static.tvmaze.com/uploads/images/original_untouched/481/1204342.jpg",
-    externalId: "tmdb-2316",
-  },
-  {
-    title: "Game of Thrones",
-    year: 2011,
-    mediaType: "tv",
-    genre: "Fantasy",
-    totalSeasons: 8,
-    overview: "Noble families fight for control of Westeros.",
-    posterUrl:
-      "https://static.tvmaze.com/uploads/images/original_untouched/498/1245274.jpg",
-    externalId: "tmdb-1399",
-  },
-  {
-    title: "The Bear",
-    year: 2022,
-    mediaType: "tv",
-    genre: "Drama",
-    totalSeasons: 3,
-    overview: "A young chef takes over his family's sandwich shop.",
-    posterUrl:
-      "https://static.tvmaze.com/uploads/images/original_untouched/629/1574642.jpg",
-    externalId: "tmdb-136315",
-  },
-  {
-    title: "Severance",
-    year: 2022,
-    mediaType: "tv",
-    genre: "Sci-Fi",
-    totalSeasons: 2,
-    overview: "Office workers surgically split work and personal memories.",
-    posterUrl:
-      "https://static.tvmaze.com/uploads/images/original_untouched/548/1371406.jpg",
-    externalId: "tmdb-95396",
-  },
-  {
-    title: "Ted Lasso",
-    year: 2020,
-    mediaType: "tv",
-    genre: "Comedy",
-    totalSeasons: 3,
-    overview: "An American football coach manages a British soccer team.",
-    posterUrl:
-      "https://static.tvmaze.com/uploads/images/original_untouched/634/1585930.jpg",
-    externalId: "tmdb-97546",
-  },
-  {
-    title: "The Last of Us",
-    year: 2023,
-    mediaType: "tv",
-    genre: "Drama",
-    totalSeasons: 1,
-    overview: "Survivors navigate a post-apocalyptic America.",
-    posterUrl:
-      "https://static.tvmaze.com/uploads/images/original_untouched/563/1409008.jpg",
-    externalId: "tmdb-100088",
-  },
-  {
-    title: "Succession",
-    year: 2018,
-    mediaType: "tv",
-    genre: "Drama",
-    totalSeasons: 4,
-    overview: "A media dynasty fights over who will take the throne.",
-    posterUrl:
-      "https://static.tvmaze.com/uploads/images/original_untouched/453/1134275.jpg",
-    externalId: "tmdb-85552",
-  },
-  {
-    title: "Shogun",
-    year: 2024,
-    mediaType: "tv",
-    genre: "Drama",
-    totalSeasons: 1,
-    overview: "An English sailor becomes embroiled in feudal Japan.",
-    posterUrl:
-      "https://static.tvmaze.com/uploads/images/original_untouched/506/1265637.jpg",
-    externalId: "tmdb-126308",
-  },
-  {
-    title: "Inception",
-    year: 2010,
-    mediaType: "movie",
-    genre: "Sci-Fi",
-    overview: "A thief who steals secrets through dream-sharing technology.",
-    posterUrl:
-      "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg",
-    externalId: "tmdb-27205",
-  },
-  {
-    title: "Interstellar",
-    year: 2014,
-    mediaType: "movie",
-    genre: "Sci-Fi",
-    overview: "Explorers travel through a wormhole in space.",
-    posterUrl:
-      "https://m.media-amazon.com/images/M/MV5BYzdjMDAxZGItMjI2My00ODA1LTlkNzItOWFjMDU5ZDJlYWY3XkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
-    externalId: "tmdb-157336",
-  },
-  {
-    title: "The Dark Knight",
-    year: 2008,
-    mediaType: "movie",
-    genre: "Action",
-    overview: "Batman faces the Joker in Gotham City.",
-    posterUrl:
-      "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg",
-    externalId: "tmdb-155",
-  },
-  {
-    title: "Dune",
-    year: 2021,
-    mediaType: "movie",
-    genre: "Sci-Fi",
-    overview: "Paul Atreides must survive on the desert planet Arrakis.",
-    posterUrl:
-      "https://m.media-amazon.com/images/M/MV5BNWIyNmU5MGYtZDZmNi00ZjAwLWJlYjgtZTc0ZGIxMDE4ZGYwXkEyXkFqcGc@._V1_QL75_UY562_CR1,0,380,562_.jpg",
-    externalId: "tmdb-438631",
-  },
-  {
-    title: "Arcane",
-    year: 2021,
-    mediaType: "tv",
-    genre: "Animation",
-    totalSeasons: 2,
-    overview: "Twin cities of Piltover and Zaun collide.",
-    posterUrl:
-      "https://static.tvmaze.com/uploads/images/original_untouched/536/1340287.jpg",
-    externalId: "tmdb-94605",
-  },
-  {
-    title: "Abbott Elementary",
-    year: 2021,
-    mediaType: "tv",
-    genre: "Comedy",
-    totalSeasons: 3,
-    overview: "Teachers at an underfunded Philadelphia school.",
-    posterUrl:
-      "https://static.tvmaze.com/uploads/images/original_untouched/586/1467109.jpg",
-    externalId: "tmdb-124418",
-  },
-  {
-    title: "The Mandalorian",
-    year: 2019,
-    mediaType: "tv",
-    genre: "Sci-Fi",
-    totalSeasons: 3,
-    overview: "A lone bounty hunter in the outer reaches of the galaxy.",
-    posterUrl:
-      "https://static.tvmaze.com/uploads/images/original_untouched/501/1253498.jpg",
-    externalId: "tmdb-82856",
-  },
-  {
-    title: "Only Murders in the Building",
-    year: 2021,
-    mediaType: "tv",
-    genre: "Comedy",
-    totalSeasons: 4,
-    overview: "Three strangers investigate a murder in their apartment building.",
-    posterUrl:
-      "https://static.tvmaze.com/uploads/images/original_untouched/586/1466415.jpg",
-    externalId: "tmdb-107113",
-  },
-];
-
-const AWARDS = [
-  {
-    slug: "series-finisher",
-    name: "Series Finisher",
-    description: "Finished your first series.",
-    icon: "🎬",
-    threshold: 1,
-  },
-  {
-    slug: "binge-badge",
-    name: "Binge Badge",
-    description: "Finished 3 series.",
-    icon: "🍿",
-    threshold: 3,
-  },
-  {
-    slug: "marathon-master",
-    name: "Marathon Master",
-    description: "Finished 5 series.",
-    icon: "🏆",
-    threshold: 5,
-  },
-  {
-    slug: "legend-watcher",
-    name: "Legend Watcher",
-    description: "Finished 10 series.",
-    icon: "👑",
-    threshold: 10,
-  },
-];
 
 async function main() {
   console.log("Seeding Watchr...");
@@ -239,12 +11,26 @@ async function main() {
   await prisma.userAward.deleteMany();
   await prisma.userShow.deleteMany();
   await prisma.friendship.deleteMany();
-  await prisma.award.deleteMany();
+  await prisma.awardDefinition.deleteMany();
   await prisma.show.deleteMany();
   await prisma.user.deleteMany();
 
-  for (const a of AWARDS) {
-    await prisma.award.create({ data: a });
+  for (const a of COUNT_AWARDS) {
+    await prisma.awardDefinition.create({ data: a });
+  }
+
+  for (const a of SHOW_AWARDS) {
+    await prisma.awardDefinition.create({
+      data: {
+        slug: a.slug,
+        name: a.name,
+        description: a.description,
+        icon: a.icon,
+        kind: "show",
+        showTitle: a.title,
+        showExternalKey: a.externalId,
+      },
+    });
   }
 
   const shows = [];
@@ -326,19 +112,28 @@ async function main() {
     ],
   });
 
-  const finisher = await prisma.award.findUniqueOrThrow({ where: { slug: "series-finisher" } });
-  await prisma.userAward.create({
-    data: { userId: demo.id, awardId: finisher.id },
-  });
+  async function grantBySlug(userId: string, slug: string) {
+    const def = await prisma.awardDefinition.findUniqueOrThrow({ where: { slug } });
+    await prisma.userAward.create({
+      data: { userId, awardDefinitionId: def.id },
+    });
+  }
 
-  const alexFinisher = await prisma.award.findUniqueOrThrow({ where: { slug: "series-finisher" } });
-  await prisma.userAward.create({
-    data: { userId: alex.id, awardId: alexFinisher.id },
-  });
+  await grantBySlug(demo.id, "series-finisher");
+  await grantBySlug(demo.id, "finish-breaking-bad");
+  await grantBySlug(demo.id, "finish-the-office");
+  await grantBySlug(alex.id, "series-finisher");
+  await grantBySlug(alex.id, "finish-stranger-things");
+  await grantBySlug(alex.id, "finish-severance");
+  await grantBySlug(jordan.id, "series-finisher");
+  await grantBySlug(jordan.id, "finish-ted-lasso");
+  await grantBySlug(sam.id, "series-finisher");
+  await grantBySlug(sam.id, "finish-succession");
+  await grantBySlug(sam.id, "finish-game-of-thrones");
 
   console.log("Seed complete.");
   console.log("Demo login: demo@watchr.app / demo1234");
-  console.log(`Shows: ${shows.length}, Users: 4`);
+  console.log(`Shows: ${shows.length}, Users: 4, Award defs: ${COUNT_AWARDS.length + SHOW_AWARDS.length}`);
 }
 
 main()
