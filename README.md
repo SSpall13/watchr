@@ -17,6 +17,10 @@ Social media for shows and movies you're watching. Share your currently watching
 - Search seeded shows; set watching / finished / want / favorite
 - Awards when you mark a series finished (Series Finisher, Binge Badge, etc.)
 
+## Posters
+
+Seeded show/movie artwork uses real posters from **TVMaze** (TV) and **OMDb** / Amazon CDN (movies; iTunes Search is used when available). URLs are hardcoded in `prisma/seed.ts` so seeding works offline. `next.config.ts` allows `static.tvmaze.com`, `*.mzstatic.com` (iTunes), `m.media-amazon.com`, and `image.tmdb.org` for `next/image`.
+
 ## Local setup (Windows PowerShell)
 
 ```powershell
@@ -56,6 +60,17 @@ openssl rand -base64 32
 
 Paste the value into `.env` as `AUTH_SECRET=...`.
 
+### Refreshing seed data (new posters)
+
+If you already have a local DB and need the updated poster URLs:
+
+```powershell
+git pull
+npm run db:reset
+# or: Remove-Item prisma\dev.db -ErrorAction SilentlyContinue; npx prisma db push; npm run seed
+npm run dev
+```
+
 ## Scripts
 
 | Command | Description |
@@ -77,7 +92,7 @@ prisma/           # schema + seed
 
 ## Out of scope (v1)
 
-- Live TMDB API (search uses the seeded DB)
+- Live TMDB API (search uses the seeded DB; no TMDB API key required)
 - Ads / payments
 - Push notifications
 
