@@ -79,7 +79,7 @@ export async function POST(req: Request) {
 
   let awards: Awaited<ReturnType<typeof checkAndGrantAwards>> = [];
   if (status === "finished") {
-    awards = await checkAndGrantAwards(userId);
+    awards = await checkAndGrantAwards(userId, showId);
   }
 
   return NextResponse.json({ userShow, awards });

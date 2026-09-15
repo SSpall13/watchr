@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { serviceBadgeClass } from "@/lib/streaming";
 
 type ShowLike = {
   id: string;
@@ -8,7 +9,19 @@ type ShowLike = {
   mediaType?: string | null;
   genre?: string | null;
   overview?: string | null;
+  streamingService?: string | null;
 };
+
+function ServiceBadge({ service }: { service?: string | null }) {
+  if (!service) return null;
+  return (
+    <span
+      className={`inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold tracking-wide ${serviceBadgeClass(service)}`}
+    >
+      {service}
+    </span>
+  );
+}
 
 export function ShowCard({
   show,
@@ -34,9 +47,17 @@ export function ShowCard({
         ) : (
           <div className="flex h-full w-full items-center justify-center text-2xl">📺</div>
         )}
+        {show.streamingService && (
+          <div className="absolute bottom-1 left-1 right-1">
+            <ServiceBadge service={show.streamingService} />
+          </div>
+        )}
       </div>
       <div className="min-w-0 flex-1">
-        <h3 className="truncate font-semibold text-white">{show.title}</h3>
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="truncate font-semibold text-white">{show.title}</h3>
+          <ServiceBadge service={show.streamingService} />
+        </div>
         <p className="mt-0.5 text-xs text-violet-200/60">
           {[show.year, show.mediaType, show.genre].filter(Boolean).join(" · ")}
         </p>
@@ -59,7 +80,7 @@ export function ShowPosterLink({
 }) {
   const inner = (
     <div className="group overflow-hidden rounded-xl border border-white/10 bg-white/5 transition hover:border-brand-400/40">
-      <div className="aspect-[2/3] bg-white/10">
+      <div className="relative aspect-[2/3] bg-white/10">
         {show.posterUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -69,6 +90,11 @@ export function ShowPosterLink({
           />
         ) : (
           <div className="flex h-full items-center justify-center text-3xl">📺</div>
+        )}
+        {show.streamingService && (
+          <div className="absolute bottom-2 left-2">
+            <ServiceBadge service={show.streamingService} />
+          </div>
         )}
       </div>
       <div className="p-2">
