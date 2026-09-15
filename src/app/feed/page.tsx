@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -7,12 +8,20 @@ import { getRecommendations } from "@/lib/recommendations";
 import { AppShell } from "@/components/AppShell";
 import { ShowCard, ShowPosterLink } from "@/components/ShowCard";
 import { ShowActions } from "@/components/ShowActions";
+import { ServiceFilter } from "@/components/ServiceFilter";
 
-export default async function FeedPage() {
+export default async function FeedPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ service?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
   const userId = session.user.id;
+  const { service } = await searchParams;
+  const serviceFilter = (service || "").trim();
+
   const me = await prisma.user.findUnique({
     where: { id: userId },
     include: { currentlyWatching: true },
@@ -25,7 +34,18 @@ export default async function FeedPage() {
     orderBy: { name: "asc" },
   });
 
-  const recommendations = await getRecommendations(userId, 8);
+  const filteredFriends = serviceFilter
+    ? friends.filter(
+        (f) => f.currentlyWatching?.streamingService === serviceFilter
+      )
+    : friends;
+
+  let recommendations = await getRecommendations(userId, 8);
+  if (serviceFilter) {
+    recommendations = recommendations.filter(
+      (s) => s.streamingService === serviceFilter
+    );
+  }
 
   return (
     <AppShell userName={me?.name}>
@@ -35,9 +55,16 @@ export default async function FeedPage() {
           <p className="mt-1 text-sm text-violet-200/60">
             What friends are watching & picks for you
           </p>
+          <div className="mt-4">
+            <Suspense fallback={null}>
+              <ServiceFilter initialService={serviceFilter} />
+            </Suspense>
+          </div>
         </section>
 
-        {me?.currentlyWatching && (
+        {me?.currentlyWatching &&
+          (!serviceFilter ||
+            me.currentlyWatching.streamingService === serviceFilter) && (
           <section className="glass p-4">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-violet-200/50">
               You&apos;re watching
@@ -57,9 +84,13 @@ export default async function FeedPage() {
                 Add friends
               </Link>
             </div>
+          ) : filteredFriends.length === 0 ? (
+            <div className="glass p-6 text-center text-sm text-violet-200/60">
+              No friends currently watching on {serviceFilter}.
+            </div>
           ) : (
             <div className="space-y-3">
-              {friends.map((f) => (
+              {filteredFriends.map((f) => (
                 <div key={f.id} className="glass p-4">
                   <div className="mb-2 flex items-center justify-between gap-2">
                     <Link
@@ -92,7 +123,9 @@ export default async function FeedPage() {
           </p>
           {recommendations.length === 0 ? (
             <div className="glass p-6 text-center text-sm text-violet-200/60">
-              Mark some shows to get recommendations.
+              {serviceFilter
+                ? `No recommendations on ${serviceFilter} yet.`
+                : "Mark some shows to get recommendations."}
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
