@@ -3,10 +3,13 @@ import bcrypt from "bcryptjs";
 import { SHOWS_A } from "./seed-shows-a";
 import { SHOWS_B } from "./seed-shows-b";
 import { SHOWS_C } from "./seed-shows-c";
+import { SHOWS_D } from "./seed-shows-d";
+import { SHOWS_E } from "./seed-shows-e";
+import { SHOWS_F } from "./seed-shows-f";
 import { COUNT_AWARDS, SHOW_AWARDS } from "./seed-awards";
 
 const prisma = new PrismaClient();
-const SHOWS = [...SHOWS_A, ...SHOWS_B, ...SHOWS_C];
+const SHOWS = [...SHOWS_A, ...SHOWS_B, ...SHOWS_C, ...SHOWS_D, ...SHOWS_E, ...SHOWS_F];
 
 async function upsertShow(s: (typeof SHOWS)[number]) {
   const existing =
