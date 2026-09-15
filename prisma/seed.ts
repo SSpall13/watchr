@@ -2,10 +2,38 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { SHOWS_A } from "./seed-shows-a";
 import { SHOWS_B } from "./seed-shows-b";
+import { SHOWS_C } from "./seed-shows-c";
 import { COUNT_AWARDS, SHOW_AWARDS } from "./seed-awards";
 
 const prisma = new PrismaClient();
-const SHOWS = [...SHOWS_A, ...SHOWS_B];
+const SHOWS = [...SHOWS_A, ...SHOWS_B, ...SHOWS_C];
+
+async function upsertShow(s: (typeof SHOWS)[number]) {
+  const existing =
+    (s.externalId
+      ? await prisma.show.findFirst({ where: { externalId: s.externalId } })
+      : null) ||
+    (await prisma.show.findFirst({ where: { title: s.title } }));
+
+  if (existing) {
+    return prisma.show.update({
+      where: { id: existing.id },
+      data: {
+        title: s.title,
+        year: s.year ?? null,
+        mediaType: s.mediaType,
+        genre: s.genre ?? null,
+        totalSeasons: "totalSeasons" in s ? (s.totalSeasons as number | null) ?? null : null,
+        overview: s.overview ?? null,
+        posterUrl: s.posterUrl ?? null,
+        externalId: s.externalId ?? null,
+        streamingService: s.streamingService ?? null,
+      },
+    });
+  }
+
+  return prisma.show.create({ data: { ...s } });
+}
 
 async function main() {
   console.log("Seeding Watchr...");
@@ -14,8 +42,12 @@ async function main() {
   await prisma.userShow.deleteMany();
   await prisma.friendship.deleteMany();
   await prisma.awardDefinition.deleteMany();
-  await prisma.show.deleteMany();
   await prisma.user.deleteMany();
+  // Keep shows and upsert so re-seed refreshes posters/services without orphaning
+  // external catalogs; wipe only when WATCHR_SEED_WIPE_SHOWS=1
+  if (process.env.WATCHR_SEED_WIPE_SHOWS === "1") {
+    await prisma.show.deleteMany();
+  }
 
   for (const a of COUNT_AWARDS) {
     await prisma.awardDefinition.create({ data: a });
@@ -37,7 +69,7 @@ async function main() {
 
   const shows = [];
   for (const s of SHOWS) {
-    shows.push(await prisma.show.create({ data: { ...s } }));
+    shows.push(await upsertShow(s));
   }
 
   const byTitle = Object.fromEntries(shows.map((s) => [s.title, s]));
@@ -135,7 +167,7 @@ async function main() {
 
   console.log("Seed complete.");
   console.log("Demo login: demo@watchr.app / demo1234");
-  console.log(`Shows: ${shows.length}, Users: 4, Award defs: ${COUNT_AWARDS.length + SHOW_AWARDS.length}`);
+  console.log(`Shows upserted: ${shows.length}, Users: 4, Award defs: ${COUNT_AWARDS.length + SHOW_AWARDS.length}`);
 }
 
 main()
