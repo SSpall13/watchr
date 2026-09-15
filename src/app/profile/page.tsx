@@ -21,7 +21,7 @@ export default async function ProfilePage() {
         orderBy: { updatedAt: "desc" },
       },
       awards: {
-        include: { award: true },
+        include: { awardDefinition: true },
         orderBy: { earnedAt: "desc" },
       },
     },
@@ -99,10 +99,10 @@ export default async function ProfilePage() {
             <div className="grid gap-3 sm:grid-cols-2">
               {user.awards.map((ua) => (
                 <div key={ua.id} className="glass flex items-center gap-3 p-4">
-                  <span className="text-3xl">{ua.award.icon}</span>
+                  <span className="text-3xl">{ua.awardDefinition.icon}</span>
                   <div>
-                    <p className="font-semibold text-white">{ua.award.name}</p>
-                    <p className="text-xs text-violet-200/60">{ua.award.description}</p>
+                    <p className="font-semibold text-white">{ua.awardDefinition.name}</p>
+                    <p className="text-xs text-violet-200/60">{ua.awardDefinition.description}</p>
                     <p className="mt-1 text-[10px] text-violet-200/40">
                       Earned {ua.earnedAt.toLocaleDateString()}
                     </p>
