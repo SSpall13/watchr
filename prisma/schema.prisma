@@ -8,36 +8,37 @@ datasource db {
 }
 
 model User {
-  id                 String    @id @default(cuid())
-  email              String    @unique
-  passwordHash       String
-  name               String
-  bio                String?
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  passwordHash        String
+  name                String
+  bio                 String?
   currentlyWatchingId String?
-  favoriteShowId     String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  favoriteShowId      String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
-  currentlyWatching  Show?     @relation("CurrentlyWatching", fields: [currentlyWatchingId], references: [id], onDelete: SetNull)
-  favoriteShow       Show?     @relation("FavoriteShow", fields: [favoriteShowId], references: [id], onDelete: SetNull)
+  currentlyWatching   Show?     @relation("CurrentlyWatching", fields: [currentlyWatchingId], references: [id], onDelete: SetNull)
+  favoriteShow        Show?     @relation("FavoriteShow", fields: [favoriteShowId], references: [id], onDelete: SetNull)
 
-  watchActivities    UserShow[]
-  awards             UserAward[]
-  friendshipsSent    Friendship[] @relation("FriendshipsSent")
+  watchActivities     UserShow[]
+  awards              UserAward[]
+  friendshipsSent     Friendship[] @relation("FriendshipsSent")
   friendshipsReceived Friendship[] @relation("FriendshipsReceived")
 }
 
 model Show {
-  id           String   @id @default(cuid())
-  externalId   String?
-  title        String
-  year         Int?
-  posterUrl    String?
-  overview     String?
-  mediaType    String   @default("tv") // movie | tv
-  genre        String?
-  totalSeasons Int?
-  createdAt    DateTime @default(now())
+  id               String   @id @default(cuid())
+  externalId       String?
+  title            String
+  year             Int?
+  posterUrl        String?
+  overview         String?
+  mediaType        String   @default("tv") // movie | tv
+  genre            String?
+  totalSeasons     Int?
+  streamingService String?  // Netflix, Max, Disney+, Hulu, Prime Video, Apple TV+, Peacock, Paramount+, Theatrical
+  createdAt        DateTime @default(now())
 
   currentlyWatchingBy User[] @relation("CurrentlyWatching")
   favoritedBy         User[] @relation("FavoriteShow")
@@ -79,26 +80,29 @@ model UserShow {
   @@index([status])
 }
 
-model Award {
-  id          String @id @default(cuid())
-  slug        String @unique
-  name        String
-  description String
-  icon        String @default("🏆")
-  threshold   Int    @default(1) // finished-series count needed
+model AwardDefinition {
+  id              String  @id @default(cuid())
+  slug            String  @unique
+  name            String
+  description     String
+  kind            String  // count | show
+  threshold       Int?    // finished-series count for kind=count
+  showExternalKey String? // matches Show.externalId for kind=show
+  showTitle       String? // title match fallback for kind=show
+  icon            String  @default("🏆")
 
   userAwards UserAward[]
 }
 
 model UserAward {
-  id       String   @id @default(cuid())
-  userId   String
-  awardId  String
-  earnedAt DateTime @default(now())
+  id                String   @id @default(cuid())
+  userId            String
+  awardDefinitionId String
+  earnedAt          DateTime @default(now())
 
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  award Award @relation(fields: [awardId], references: [id], onDelete: Cascade)
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  awardDefinition AwardDefinition @relation(fields: [awardDefinitionId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, awardId])
+  @@unique([userId, awardDefinitionId])
   @@index([userId])
 }
