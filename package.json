@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "tsx prisma/seed.ts",
+    "sync:catalog": "tsx prisma/scripts/sync-tmdb-catalog.ts",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "db:reset": "prisma db push --force-reset && npm run seed"
