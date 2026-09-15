@@ -1,9 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { SHOWS } from "./seed-shows";
+import { SHOWS_A } from "./seed-shows-a";
+import { SHOWS_B } from "./seed-shows-b";
 import { COUNT_AWARDS, SHOW_AWARDS } from "./seed-awards";
 
 const prisma = new PrismaClient();
+const SHOWS = [...SHOWS_A, ...SHOWS_B];
 
 async function main() {
   console.log("Seeding Watchr...");
@@ -35,7 +37,7 @@ async function main() {
 
   const shows = [];
   for (const s of SHOWS) {
-    shows.push(await prisma.show.create({ data: s }));
+    shows.push(await prisma.show.create({ data: { ...s } }));
   }
 
   const byTitle = Object.fromEntries(shows.map((s) => [s.title, s]));
