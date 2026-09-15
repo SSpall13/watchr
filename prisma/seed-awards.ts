@@ -1,0 +1,51 @@
+export const COUNT_AWARDS = [
+  {
+    slug: "series-finisher",
+    name: "Series Finisher",
+    description: "Finished your first series.",
+    icon: "🎬",
+    kind: "count",
+    threshold: 1,
+  },
+  {
+    slug: "binge-badge",
+    name: "Binge Badge",
+    description: "Finished 3 series.",
+    icon: "🍿",
+    kind: "count",
+    threshold: 3,
+  },
+  {
+    slug: "marathon-master",
+    name: "Marathon Master",
+    description: "Finished 5 series.",
+    icon: "🏆",
+    kind: "count",
+    threshold: 5,
+  },
+  {
+    slug: "legend-watcher",
+    name: "Legend Watcher",
+    description: "Finished 10 series.",
+    icon: "👑",
+    kind: "count",
+    threshold: 10,
+  },
+];
+
+export const SHOW_AWARDS = [
+  { slug: "finish-breaking-bad", name: "Chemistry Set", description: "Finished Breaking Bad.", icon: "⚗️", title: "Breaking Bad", externalId: "tmdb-1396" },
+  { slug: "finish-the-office", name: "That's What She Said", description: "Finished The Office.", icon: "📎", title: "The Office", externalId: "tmdb-2316" },
+  { slug: "finish-stranger-things", name: "Friends Don't Lie", description: "Finished Stranger Things.", icon: "🚲", title: "Stranger Things", externalId: "tmdb-66732" },
+  { slug: "finish-game-of-thrones", name: "Iron Throne", description: "Finished Game of Thrones.", icon: "🐉", title: "Game of Thrones", externalId: "tmdb-1399" },
+  { slug: "finish-the-bear", name: "Yes Chef", description: "Finished The Bear.", icon: "👨‍🍳", title: "The Bear", externalId: "tmdb-136315" },
+  { slug: "finish-succession", name: "You Are Not Serious People", description: "Finished Succession.", icon: "💼", title: "Succession", externalId: "tmdb-85552" },
+  { slug: "finish-severance", name: "Work/Life Split", description: "Finished Severance.", icon: "🧠", title: "Severance", externalId: "tmdb-95396" },
+  { slug: "finish-the-last-of-us", name: "Endure and Survive", description: "Finished The Last of Us.", icon: "🍄", title: "The Last of Us", externalId: "tmdb-100088" },
+  { slug: "finish-squid-game", name: "Red Light, Green Light", description: "Finished Squid Game.", icon: "🦑", title: "Squid Game", externalId: "tmdb-93405" },
+  { slug: "finish-shogun", name: "Anjin", description: "Finished Shogun.", icon: "⚔️", title: "Shogun", externalId: "tmdb-126308" },
+  { slug: "finish-ted-lasso", name: "Believe", description: "Finished Ted Lasso.", icon: "⚽", title: "Ted Lasso", externalId: "tmdb-97546" },
+  { slug: "finish-arcane", name: "Piltover & Zaun", description: "Finished Arcane.", icon: "🔮", title: "Arcane", externalId: "tmdb-94605" },
+  { slug: "finish-the-mandalorian", name: "This Is the Way", description: "Finished The Mandalorian.", icon: "🦾", title: "The Mandalorian", externalId: "tmdb-82856" },
+  { slug: "finish-the-boys", name: "Homelander's Nightmare", description: "Finished The Boys.", icon: "🦸", title: "The Boys", externalId: "tmdb-76479" },
+];
